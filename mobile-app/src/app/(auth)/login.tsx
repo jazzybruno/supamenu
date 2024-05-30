@@ -10,29 +10,50 @@ import { axiosInstance } from '@/utils/axios.util';
 import axios from 'axios';
 
 const LoginScreen = () => {
+  const [isLoading, setIsLoading] = React.useState(false)
   const [data, setData] = React.useState({
     email: '',
     password: '',
   });
   const { storeData } = useStorage()
-  const { setToken } = useAuth();
+  const { setToken , setUser } = useAuth();
   const router = useRouter()
 
+
+  const validateForm = () => {
+    if (data.email === '' || data.password === '') {
+      alert('Please fill in all fields')
+      return false
+    }
+
+    if(data.password.length < 4) {
+      alert('Password must be atleast 4 characters')
+      return false
+    }
+
+    if(!data.email.includes('@')) {
+      alert('Invalid email')
+      return false
+    }
+    return true
+  }
+
   const onLogin = async () => {
-    storeData('token', '123456')
-    setToken('123456')
-    router.push('/(tabs)')
-      // try {
-      //   console.log(data);
-      //   const response = await axiosInstance.post('/auth/login', data);
-      //   console.log(response);
-      //   storeData('token', '123456')
-      //   setToken('123456')
-      //   router.push('/(tabs)')
-      // } catch (error) {
-      //   console.log(error)
-      //   alert('Invalid email or password')
-      // } 
+      try {
+        setIsLoading(true)
+        console.log(data);
+        const response = await axiosInstance.post('/auth/login', data);
+        console.log(response.data.data);
+        storeData('token', response.data.data.token)
+        storeData('user', response.data.data.user)
+        setUser(response.data.data.user)
+        setToken(response.data.data.token)
+        router.push('/(tabs)')
+      } catch (error) {
+        setIsLoading(false)
+        console.log(error)
+        alert('Invalid email or password')
+      } 
   }
 
   return (
@@ -70,9 +91,12 @@ const LoginScreen = () => {
 
             </View>
             <Pressable
+            disabled={isLoading}
               onPress={onLogin}
-              className='bg-primary w-full flex-row  items-center justify-center mt-6 p-3 px-8 rounded-md'>
-              <Text className='text-white text-lg font-bold'>Sign in</Text>
+              className={`${isLoading ? `bg-primary` : `bg-[#f7951dc0]` } w-full flex-row  items-center justify-center mt-6 p-3 px-8 rounded-md`}>
+              <Text className='text-white text-lg font-bold'>
+                {isLoading ? 'Loading...' : 'Sign in'}
+              </Text>
             </Pressable>
             <View className='flex-row items-center mt-4'>
               <View className='flex-1 border-b-2 border-gray-300'></View>

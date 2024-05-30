@@ -1,11 +1,13 @@
 import { View, Text, Pressable } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { ThemedView } from '@/components/core/ThemedView'
 import { router } from 'expo-router'
 import { ThemedText } from '@/components/core/ThemedText'
 import { ArrowIcon } from '@/components/icons'
+import { useAuth } from '@/contexts/AuthProvider'
+import { getAuthorizedAxiosInstance } from '@/utils/axios.util'
 
-const notifications = [
+const dummynotifications = [
     {
         title: 'Order',
         message: 'Your order has been placed successfully',
@@ -17,6 +19,23 @@ const notifications = [
 ];
 
 const Notifications = () => {
+    const [notifications , setNotifications] = useState(dummynotifications)
+    const { token , user } = useAuth()
+    if(!token || !user) return router.push('/login')
+    const authenticatedAxiosInstance = getAuthorizedAxiosInstance(useAuth().token!)
+
+    useEffect(()=>{
+       try {
+        authenticatedAxiosInstance.get('notifications').then((res) => {
+            setNotifications(res.data)
+        }).catch((error) => {
+            console.log(error)
+        })
+       } catch (error) {
+         console.log(error);
+       }
+    } ,  [notifications])
+
     return (
         <ThemedView className=" flex-col flex-1 w-full p-4 gap-y-3">
             <View className="flex flex-row justify-between items-center">
@@ -26,7 +45,7 @@ const Notifications = () => {
                     style={{ transform: [{ rotate: "180deg" }] }}
                 >
                     <ArrowIcon size={20} />
-                </Pressable>
+                </Pressable>    
                 <View className="flex-row w-full ml-4 items-start">
                     <ThemedText className=" font-bold text-lg">Notifications</ThemedText>
                     <View className="flex-col ml-2 p-1 items-center justify-center w-8 bg-primary rounded-full aspect-square">

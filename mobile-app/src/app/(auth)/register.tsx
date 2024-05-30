@@ -1,16 +1,58 @@
 import { View, Text, TextInput, Pressable, ScrollView } from 'react-native'
 import React from 'react'
 import { AntDesign, Feather, FontAwesome } from '@expo/vector-icons'
-import { Link } from 'expo-router';
+import { Link , router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { axiosInstance } from '@/utils/axios.util';
 
 const RegisterScreen = () => {
+    const [isLoading , setIsLoading] = React.useState(false)
     const [data, setData] = React.useState({
         fullNames: '',
         phoneNumber: '',
         email: '',
         password: '',
     });
+
+    const validateForm = () => {
+        if (data.fullNames === '' || data.phoneNumber === '' || data.email === '' || data.password === '') {
+            alert('Please fill in all fields')
+            return false
+        }
+
+        if (data.password.length < 6) {
+            alert('Password must be atleast 6 characters')
+            return false
+        }
+
+        if(!data.email.includes('@')) {
+            alert('Invalid email')
+            return false
+        }
+
+        if(data.phoneNumber.length < 10) {
+            alert('Invalid phone number')
+            return false
+        }
+
+        return true
+    }
+
+    const onRegister = async () => {
+        if(!validateForm()) return
+        try {
+            setIsLoading(true)
+            console.log(data);
+            const response = await axiosInstance.post('/auth/register', data);
+            console.log(response.data);
+            alert('Account created successfully')
+            router.push('/login')
+          } catch (error) {
+            setIsLoading(false)
+            console.log(error)
+            alert('Something went wrong, please try again')
+          } 
+    }
     return (
 
         <View className=' bg-primary flex-1 pt-20'>
@@ -60,9 +102,12 @@ const RegisterScreen = () => {
                             className=' w-full flex-row items-center outline-none p-2' placeholder='Your Password' />
                     </View>
                     <Pressable
-                        onPress={() => console.log(data)}
-                        className='bg-primary w-full flex-row  items-center justify-center mt-6 p-3 px-8 rounded-md'>
-                        <Text className='text-white text-lg font-bold'>Sign in</Text>
+                        disabled={isLoading}
+                        onPress={onRegister}
+                        className={`${isLoading ? `bg-primary` : `bg-[#f7951dc0]`} w-full flex-row  items-center justify-center mt-6 p-3 px-8 rounded-md`}>
+                        <Text className='text-white text-lg font-bold'>
+                            {isLoading ? 'Loading...' : 'Sign up'}
+                        </Text>
                     </Pressable>
                     <Text className='text-center mt-8 text-gray-400'>Already have an account? <Link href={'/login'} className='text-primary font-bold'>Sign in</Link></Text>
                 </ScrollView>

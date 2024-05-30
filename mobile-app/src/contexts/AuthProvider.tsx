@@ -60,7 +60,7 @@ export function AuthProvider(props: AuthProviderProps) {
     }
 
     const getProfile = async () => {
-        setToken(null);
+        // setToken(null);
         console.log("getting profile", isAuthPage);
         if (isAuthPage) return;
         try {
@@ -79,7 +79,6 @@ export function AuthProvider(props: AuthProviderProps) {
 
     useEffect(() => {
         getData("token").then((token) => {
-            console.log("token", token);
             setToken(token);
         });
     }, []);
@@ -91,6 +90,7 @@ export function AuthProvider(props: AuthProviderProps) {
             return;
         }
         getProfile();
+        
     }, [token]);
 
     useEffect(() => {
@@ -98,10 +98,10 @@ export function AuthProvider(props: AuthProviderProps) {
         if (!ready) return;
         const inAuthGroup = segments[0] === "(auth)" || segments.length === 0;
         const isLanding = segments[0] === "landing";
-
         // segments length is 0 when on the landing page. ot '/'
         // if (segments.length === 0) return;
         if (isLanding) return;
+        console.log("The token is signed in", token);
 
         if (
             // If the token is not signed in and the initial segment is not anything in the auth group.

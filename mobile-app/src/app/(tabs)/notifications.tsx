@@ -26,8 +26,8 @@ const Notifications = () => {
 
     useEffect(()=>{
        try {
-        authenticatedAxiosInstance.get('notifications').then((res) => {
-            setNotifications(res.data)
+        authenticatedAxiosInstance.get(`/notification/user/${user.id}`).then((res) => {
+            setNotifications(res.data.data)
         }).catch((error) => {
             console.log(error)
         })

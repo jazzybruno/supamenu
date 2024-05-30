@@ -105,13 +105,13 @@ export function AuthProvider(props: AuthProviderProps) {
 
         if (
             // If the token is not signed in and the initial segment is not anything in the auth group.
-            !token &&
+            !token && !user &&
             !inAuthGroup
         ) {
             console.log("has tkn segments", segments);
             // Redirect to the login page. For more info see https://github.com/expo/router/issues/740
             replace("/login");
-        } else if (token && inAuthGroup) {
+        } else if (token && user && inAuthGroup) {
             // Redirect away from the login page.
             console.log("tabs", segments);
             replace("/(tabs)");

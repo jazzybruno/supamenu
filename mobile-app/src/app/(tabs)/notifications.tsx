@@ -7,19 +7,9 @@ import { ArrowIcon } from '@/components/icons'
 import { useAuth } from '@/contexts/AuthProvider'
 import { getAuthorizedAxiosInstance } from '@/utils/axios.util'
 
-const dummynotifications = [
-    {
-        title: 'Order',
-        message: 'Your order has been placed successfully',
-    },
-    {
-        title: 'Order Arrived',
-        message: 'Your order has arrived at your location',
-    },
-];
 
 const Notifications = () => {
-    const [notifications , setNotifications] = useState(dummynotifications)
+    const [notifications , setNotifications] = useState([])
     const { token , user } = useAuth()
     if(!token || !user) return router.push('/login')
     const authenticatedAxiosInstance = getAuthorizedAxiosInstance(useAuth().token!)

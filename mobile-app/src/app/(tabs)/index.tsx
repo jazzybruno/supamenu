@@ -7,14 +7,36 @@ import Restaurant from '@/components/in_screens/Restaurant';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { FontAwesome5 } from '@expo/vector-icons';
+import {useRouter} from 'expo-router';
 import React from 'react';
+import { useAuth } from '@/contexts/AuthProvider';
+import { getAuthorizedAxiosInstance } from '@/utils/axios.util';
+import { useEffect } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 export default function HomeScreen() {
+  const router = useRouter();
   const [query, setQuery] = React.useState('');
   const colorScheme = useColorScheme()
-  // const { removeData } = useStorage()
-  // removeData('token')
+  const [ restaurants , setRestaurants ] = React.useState([])
+    // fetching details of restaurants 
+    const {user , token } = useAuth()
+    const authenticatedAxiosInstance = getAuthorizedAxiosInstance(token!)
+    if(!token || !user) return router.push('/login')
+  
+    useEffect(() => {
+        try {
+          authenticatedAxiosInstance.get(`/restaurant/`).then((res) => {
+            // console.log(res.data.data)
+            setRestaurants(res.data.data)
+          }).catch((error) => {
+            console.log(error)
+          })
+        } catch (error) {
+          console.log(error);
+      }
+    },[restaurants])
+
   return (
     <ThemedView className='flex-1'>
       <View className=" mt-2 mx-auto w-full p-3 rounded-md items-center flex-row px-5 gap-x-3">
@@ -34,8 +56,8 @@ export default function HomeScreen() {
           <ThemedText className="text-lg font-bold ml-2">Popular Restaurants</ThemedText>
         </View>
         <View className='flex-1 flex-col'>
-          {restaurants.map((item) => (
-            <Restaurant restaurant={item} key={item.id} />
+          {restaurants.slice(0,4).map((item , index) => (
+            <Restaurant restaurant={item} key={index} />
           ))}
         </View>
         <View className='flex-1 flex-col'>
